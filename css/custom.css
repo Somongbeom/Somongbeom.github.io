@@ -1,0 +1,4 @@
+.loading-img {
+    background: url(source\images\loading.jpg) no-repeat center center;
+    background-size: cover;
+}
