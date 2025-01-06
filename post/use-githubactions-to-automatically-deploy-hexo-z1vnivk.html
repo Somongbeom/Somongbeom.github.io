@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>使用GithubActions自动部署Hexo | Somongbeom's Blog</title><meta name="author" content="Somongbeom"><meta name="copyright" content="Somongbeom"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="使用GithubActions自动部署Hexo 此教程来自：https:&#x2F;&#x2F;blog.anheyu.com&#x2F;posts&#x2F;asdx.html    常量名 常量释义     [Blogroot] 本地存放博客源码的文件夹路径   [SourceRepo] 存放博客源码的私有仓库名   [SiteBlogRepo] 存放编译好的博客页面的公有仓库名 Site 指站点，教程中会替换成 Github、Gi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用GithubActions自动部署Hexo">
+<meta property="og:url" content="http://example.com/post/use-githubactions-to-automatically-deploy-hexo-z1vnivk.html">
+<meta property="og:site_name" content="Somongbeom&#39;s Blog">
+<meta property="og:description" content="使用GithubActions自动部署Hexo 此教程来自：https:&#x2F;&#x2F;blog.anheyu.com&#x2F;posts&#x2F;asdx.html    常量名 常量释义     [Blogroot] 本地存放博客源码的文件夹路径   [SourceRepo] 存放博客源码的私有仓库名   [SiteBlogRepo] 存放编译好的博客页面的公有仓库名 Site 指站点，教程中会替换成 Github、Gi">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/img/touxiang.jpg">
+<meta property="article:published_time" content="2025-01-05T09:10:46.000Z">
+<meta property="article:modified_time" content="2025-01-06T12:58:39.000Z">
+<meta property="article:author" content="Somongbeom">
+<meta property="article:tag" content="hexo">
+<meta property="article:tag" content="Github actions">
+<meta property="article:tag" content="自动部署">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/img/touxiang.jpg"><link rel="shortcut icon" href="/img/web.png"><link rel="canonical" href="http://example.com/post/use-githubactions-to-automatically-deploy-hexo-z1vnivk.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":230,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":150,"languages":{"author":"作者: Somongbeom","link":"链接: ","source":"来源: Somongbeom's Blog","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'medium_zoom',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#E8EAFF","bgDark":"#E8EAFF","position":"bottom"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用GithubActions自动部署Hexo',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  isShuoshuo: false
+}</script><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 7.3.0"></head><body><script>window.paceOptions = {
+  restartOnPushState: false
+}
+
+btf.addGlobalFn('pjaxSend', () => {
+  Pace.restart()
+}, 'pace_restart')
+
+</script><link rel="stylesheet" href="/source/css/progress_bar.css"/><script src="https://cdn.jsdelivr.net/npm/pace-js/pace.min.js"></script><div id="web_bg" style="background-image: url(/img/background.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/touxiang.jpg" onerror="onerror=null;src='/img/404-error.png'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">2</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">1</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background: transparent;"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="/img/web.png" alt="Logo"><span class="site-name">Somongbeom's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">使用GithubActions自动部署Hexo</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">使用GithubActions自动部署Hexo</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-01-05T09:10:46.000Z" title="发表于 2025-01-05 17:10:46">2025-01-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-01-06T12:58:39.000Z" title="更新于 2025-01-06 20:58:39">2025-01-06</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E7%AC%94%E8%AE%B0%E7%9F%A5%E8%AF%86/">笔记知识</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1>使用GithubActions自动部署Hexo</h1>
+<p><span data-type="text" style="background-color: var(--b3-card-info-background); color: var(--b3-card-info-color);">此教程来自：</span><a target="_blank" rel="noopener" href="https://akilar.top/posts/f752c86d/">https://blog.anheyu.com/posts/asdx.html</a></p>
+<table>
+<thead>
+<tr>
+<th>常量名</th>
+<th>常量释义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[Blogroot]</strong></td>
+<td>本地存放博客源码的文件夹路径</td>
+</tr>
+<tr>
+<td><strong>[SourceRepo]</strong></td>
+<td>存放博客源码的私有仓库名</td>
+</tr>
+<tr>
+<td><strong>[SiteBlogRepo]</strong></td>
+<td>存放编译好的博客页面的公有仓库名 Site 指站点，教程中会替换成 Github、Gitee、Coding</td>
+</tr>
+<tr>
+<td><strong>[SiteUsername]</strong></td>
+<td>用户名 Site 指站点，教程中会替换成 Github、Gitee、Coding</td>
+</tr>
+<tr>
+<td><strong>[SiteToken]</strong></td>
+<td>申请到的令牌码 Site 指站点，教程中会替换成 Github、Gitee、Coding</td>
+</tr>
+<tr>
+<td><strong>[GithubEmail]</strong></td>
+<td>与 github 绑定的主邮箱，建议使用 Gmail</td>
+</tr>
+<tr>
+<td><strong>[TokenUser]</strong></td>
+<td>Coding 配置特有的令牌用户名</td>
+</tr>
+</tbody>
+</table>
+<h1>1.获取Token</h1>
+<p>访问 Github头像（右上角）-&gt; Settings -&gt;Developer Settings -&gt;Personal access tokens-&gt;generate new token,创建的 Token 名称随意，但必须勾选 repo 项 和 workflows 项。</p>
+<p><span data-type="text" style="background-color: var(--b3-card-error-background); color: var(--b3-card-error-color);">注意：token 只会显示一次，之后将无法查看，所以务必记录下了 Token。</span></p>
+<p>​<img src="https://raw.githubusercontent.com/Somongbeom/imagesave/main/nullimage-20250105190154-5xqzobx.png" alt="image">​</p>
+<p>​<img src="https://raw.githubusercontent.com/Somongbeom/imagesave/main/nullimage-20250105190354-qdsteic.png" alt="image">​</p>
+<h1>2.创建存放Hexo源码的私有仓库</h1>
+<p>存放Hexo源码的私有仓库[^1]</p>
+<h1>3.配置 Github Action</h1>
+<h2 id="1-在-D-Hexo-Blog​-新建文件-github-workflows-autodeploy-yml​">1.在 <code>D:\Hexo-Blog</code>​ 新建文件<code>.github/workflows/autodeploy.yml</code>​</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"># 当有改动推送到master分支时，启动Action</span><br><span class="line">name: 自动部署</span><br><span class="line"></span><br><span class="line">on:</span><br><span class="line">  push:</span><br><span class="line">    branches:</span><br><span class="line">      - main #2020年10月后github新建仓库默认分支改为main，注意更改</span><br><span class="line"></span><br><span class="line">  release:</span><br><span class="line">    types:</span><br><span class="line">      - published</span><br><span class="line"></span><br><span class="line">jobs:</span><br><span class="line">  deploy:</span><br><span class="line">    runs-on: ubuntu-latest</span><br><span class="line">    steps:</span><br><span class="line">    - name: 检查分支</span><br><span class="line">      uses: actions/checkout@v2</span><br><span class="line">      with:</span><br><span class="line">        ref: main #2020年10月后github新建仓库默认分支改为main，注意更改</span><br><span class="line"></span><br><span class="line">    - name: 安装 Node</span><br><span class="line">      uses: actions/setup-node@v1</span><br><span class="line">      with:</span><br><span class="line">        node-version: &quot;v18.20.5&quot; #action使用的node版本，建议大版本和本地保持一致。可以在本地用node -v查询版本号。</span><br><span class="line"></span><br><span class="line">    - name: 安装 Hexo</span><br><span class="line">      run: |</span><br><span class="line">        export TZ=&#x27;Asia/Shanghai&#x27;</span><br><span class="line">        npm install hexo-cli -g</span><br><span class="line"></span><br><span class="line">    - name: 缓存 Hexo</span><br><span class="line">      uses: actions/cache@v1</span><br><span class="line">      id: cache</span><br><span class="line">      with:</span><br><span class="line">        path: node_modules</span><br><span class="line">        key: $&#123;&#123;runner.OS&#125;&#125;-$&#123;&#123;hashFiles(&#x27;**/package-lock.json&#x27;)&#125;&#125;</span><br><span class="line"></span><br><span class="line">    - name: 安装依赖</span><br><span class="line">      if: steps.cache.outputs.cache-hit != &#x27;true&#x27;</span><br><span class="line">      run: |</span><br><span class="line">        npm install --save</span><br><span class="line"></span><br><span class="line">    - name: 生成静态文件</span><br><span class="line">      run: |</span><br><span class="line">        hexo clean</span><br><span class="line">        hexo generate</span><br><span class="line"></span><br><span class="line">    - name: 部署 #此处master:master 指从本地的master分支提交到远程仓库的master分支，若远程仓库没有对应分支则新建一个。如有其他需要，可以根据自己的需求更改。</span><br><span class="line">      run: |</span><br><span class="line">        cd ./public</span><br><span class="line">        git init</span><br><span class="line">        git config --global user.name &#x27;$&#123;&#123; secrets.GITHUBUSERNAME &#125;&#125;&#x27;</span><br><span class="line">        git config --global user.email &#x27;$&#123;&#123; secrets.GITHUBEMAIL &#125;&#125;&#x27;</span><br><span class="line">        git add .</span><br><span class="line">        git commit -m &quot;$&#123;&#123; github.event.head_commit.message &#125;&#125; $(date +&quot;%Z %Y-%m-%d %A %H:%M:%S&quot;) Updated By Github Actions&quot;</span><br><span class="line">        git push --force --quiet &quot;https://$&#123;&#123; secrets.GITHUBUSERNAME &#125;&#125;:$&#123;&#123; secrets.GITHUBTOKEN &#125;&#125;@github.com/$&#123;&#123; secrets.GITHUBUSERNAME &#125;&#125;/$&#123;&#123; secrets.GITHUBUSERNAME &#125;&#125;.github.io.git&quot; main:main</span><br></pre></td></tr></table></figure>
+<h2 id="2-在仓库添加环境变量">2.在仓库添加环境变量</h2>
+<p>之后需要自己到仓库的 Settings-&gt;Secrets-&gt;actions 下添加环境变量，变量名参考脚本中出现的，依次添加。</p>
+<p>​<img src="https://raw.githubusercontent.com/Somongbeom/imagesave/main/nullimage-20250105205408-sxte1dg.png" alt="image">​</p>
+<p>脚本中必要的变量为<code>GITHUBUSERNAME</code>​、<code>GITHUBEMAIL</code>​、<code>GITHUBTOKEN</code>​，因此添加这三条变量。</p>
+<h2 id="3-重新设置远程仓库和分支">3.重新设置远程仓库和分支</h2>
+<p>1.打开 <code>D:\Hexo-Blog\.gitignore</code>​（也是隐藏文件）,输入以下内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.DS_Store</span><br><span class="line">Thumbs.db</span><br><span class="line">db.json</span><br><span class="line">*.log</span><br><span class="line">node_modules/</span><br><span class="line">public/</span><br><span class="line">.deploy*/</span><br><span class="line">.deploy_git*/</span><br><span class="line">.idea</span><br><span class="line">themes/butterfly/.git</span><br></pre></td></tr></table></figure>
+<p><span data-type="text" style="background-color: var(--b3-card-error-background); color: var(--b3-card-error-color);">如果不是</span><code>butterfly</code>​​<span data-type="text" style="background-color: var(--b3-card-error-background); color: var(--b3-card-error-color);">主题，记得替换最后一行内容为你自己当前使用的主题。</span></p>
+<p>2.在博客根目录<code>D:\Hexo-Blog</code>​下启动终端，使用 git 指令重设仓库地址。这样在新建仓库，我们仍旧可以保留珍贵的 commit history，便于版本回滚。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git remote <span class="built_in">rm</span> origin <span class="comment"># 删除原有仓库链接</span></span><br><span class="line">git remote add origin git@github.com:Somongbeom/blog.git <span class="comment">#[SourceRepo]为新的存放源码的github私有仓库</span></span><br><span class="line">git checkout -b main</span><br><span class="line">git add .</span><br><span class="line">git commit -m <span class="string">&quot;github action update&quot;</span></span><br><span class="line">git push origin main</span><br></pre></td></tr></table></figure>
+<h2 id="4-可能遇到的问题">4.可能遇到的问题</h2>
+<h3 id="4-1因为-butterfly-主题文件夹下的-git-文件夹的存在，那么主题文件夹会被识别子项目。">4.1因为 butterfly 主题文件夹下的.git 文件夹的存在，那么主题文件夹会被识别子项目。</h3>
+<p>从而无法被上传到源码仓库。若是遇到添加屏蔽项，但是还是无法正常上传主题文件夹的情况。请先将本地源码中的 themes 文件夹移动到别的目录下。然后 commit 一次。接着将 themes 文件夹移动回来，再 commit 一次。</p>
+<p>要是还不行，那就删了 butterfly 主题文件夹下的.git 文件夹，然后再重复上述的 commit 操作。</p>
+<h3 id="4-2-rejected-main-main-fetch-first">4.2 ! [rejected]        main -&gt; main (fetch first)</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">! [rejected]        main -&gt; main (fetch first)</span><br><span class="line">error: failed to push some refs to &#x27;github.com:Somongbeom/blog.git&#x27;</span><br><span class="line">hint: Updates were rejected because the remote contains work that you do not</span><br><span class="line">hint: have locally. This is usually caused by another repository pushing to</span><br><span class="line">hint: the same ref. If you want to integrate the remote changes, use</span><br><span class="line">hint: &#x27;git pull&#x27; before pushing again.</span><br></pre></td></tr></table></figure>
+<p>这意味着你的本地 <code>main</code>​ 分支与远程 <code>main</code>​ 分支之间存在差异，远程分支上有你本地没有的更改。Git 阻止了推送，以防止你覆盖远程分支上的更改。</p>
+<p>要解决这个问题，你可以按照提示进行操作：</p>
+<h4 id="方法-1：使用-git-pull​-合并远程更改">方法 1：使用 <code>git pull</code>​ 合并远程更改</h4>
+<p>你可以先将远程分支上的更改拉取到本地，然后解决任何可能的冲突，再进行推送。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git pull origin main</span><br></pre></td></tr></table></figure>
+<p>这会将远程 <code>main</code>​ 分支的更改合并到你的本地 <code>main</code>​ 分支。如果合并过程中出现冲突，你需要手动解决这些冲突，然后再次提交更改。</p>
+<h3 id="方法-2：使用-git-fetch​-和-git-merge​">方法 2：使用 <code>git fetch</code>​ 和 <code>git merge</code>​</h3>
+<p>如果你想要更细粒度地控制合并过程，可以使用 <code>git fetch</code>​ 和 <code>git merge</code>​：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git fetch origin</span><br><span class="line">git merge origin/main</span><br></pre></td></tr></table></figure>
+<p>这同样会将远程 <code>main</code>​ 分支的更改合并到你的本地 <code>main</code>​ 分支。解决任何冲突后，再进行推送。</p>
+<h3 id="方法-3：强制推送（不推荐）">方法 3：强制推送（不推荐）</h3>
+<p>如果你确定你的本地更改是正确的，并且想要覆盖远程分支上的更改，可以使用强制推送。但请注意，这会丢失远程分支上的所有更改，因此请谨慎使用：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push -f origin main</span><br></pre></td></tr></table></figure>
+<p>‍</p>
+<p>当你看到这样的提示时，Git 正在要求你输入一个提交信息来解释为什么需要合并远程分支 <code>origin/main</code>​。这通常发生在执行 <code>git pull</code>​ 或 <code>git merge</code>​ 命令后，Git 需要你确认合并的原因。</p>
+<h3 id="如何输入提交信息">如何输入提交信息</h3>
+<ol>
+<li>
+<p><strong>打开合并信息文件</strong>：</p>
+<ul>
+<li>Git 会自动打开一个文本编辑器（通常是 Vim 或 Nano），让你输入合并信息。</li>
+</ul>
+</li>
+<li>
+<p><strong>输入合并信息</strong>：</p>
+<ul>
+<li>
+<p>在编辑器中，删除或修改以 <code>#</code>​ 开头的注释行。</p>
+</li>
+<li>
+<p>在第一行输入一个简短的合并信息，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Merge remote-tracking branch &#x27;origin/main&#x27; to resolve conflicts</span><br></pre></td></tr></table></figure>
+</li>
+<li>
+<p>在接下来的几行中，可以添加更详细的解释，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">This merge is necessary to integrate the latest changes from the remote repository and resolve any conflicts that arose during development.</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>保存并退出编辑器</strong>：</p>
+<ul>
+<li>如果你使用的是 Vim，按 <code>Esc</code>​ 键，输入 <code>:wq</code>​，然后按 <code>Enter</code>​ 键保存并退出。</li>
+<li>如果你使用的是 Nano，按 <code>Ctrl+X</code>​，然后按 <code>Y</code>​ 确认保存更改，最后按 <code>Enter</code>​ 键退出。</li>
+</ul>
+</li>
+</ol>
+<h3 id="示例合并信息">示例合并信息</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Merge remote-tracking branch &#x27;origin/main&#x27; to resolve conflicts</span><br><span class="line"></span><br><span class="line">This merge is necessary to integrate the latest changes from the remote repository and resolve any conflicts that arose during development.</span><br></pre></td></tr></table></figure>
+<h3 id="注意事项">注意事项</h3>
+<ul>
+<li><strong>确保信息清晰</strong>：合并信息应该清晰地说明为什么需要合并，特别是当合并涉及到解决冲突时。</li>
+<li><strong>避免空提交信息</strong>：如果提交信息为空，Git 会终止合并过程，你需要重新输入信息。</li>
+</ul>
+<p>通过输入合适的合并信息，你可以帮助团队成员更好地理解代码历史和合并的原因。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="Somongbeom">Somongbeom</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="http://example.com/post/use-githubactions-to-automatically-deploy-hexo-z1vnivk.html">http://example.com/post/use-githubactions-to-automatically-deploy-hexo-z1vnivk.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="http://example.com" target="_blank">Somongbeom's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/hexo/">hexo</a><a class="post-meta__tags" href="/tags/Github-actions/">Github actions</a><a class="post-meta__tags" href="/tags/%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2/">自动部署</a></div><div class="post-share"><div class="social-share" data-image="/img/touxiang.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/post/submit-the-master-branch-code-to-the-main-branch-z1vqrmx.html" title=""><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2"></div></div><div class="info-2"><div class="info-item-1"> 问题： 本地默认分支为master​，而github创建repository默认为main​，如何将本地的master​分支提交到远程main​分支上。 ‍ ​​ 解决：修改本地分支名称 1git branch -m master main </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content is-expand"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text">使用GithubActions自动部署Hexo</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">2.</span> <span class="toc-text">1.获取Token</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">3.</span> <span class="toc-text">2.创建存放Hexo源码的私有仓库</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text">3.配置 Github Action</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9C%A8-D-Hexo-Blog%E2%80%8B-%E6%96%B0%E5%BB%BA%E6%96%87%E4%BB%B6-github-workflows-autodeploy-yml%E2%80%8B"><span class="toc-number">4.1.</span> <span class="toc-text">1.在 D:\Hexo-Blog​ 新建文件.github&#x2F;workflows&#x2F;autodeploy.yml​</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%9C%A8%E4%BB%93%E5%BA%93%E6%B7%BB%E5%8A%A0%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="toc-number">4.2.</span> <span class="toc-text">2.在仓库添加环境变量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E9%87%8D%E6%96%B0%E8%AE%BE%E7%BD%AE%E8%BF%9C%E7%A8%8B%E4%BB%93%E5%BA%93%E5%92%8C%E5%88%86%E6%94%AF"><span class="toc-number">4.3.</span> <span class="toc-text">3.重新设置远程仓库和分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%AF%E8%83%BD%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">4.4.</span> <span class="toc-text">4.可能遇到的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1%E5%9B%A0%E4%B8%BA-butterfly-%E4%B8%BB%E9%A2%98%E6%96%87%E4%BB%B6%E5%A4%B9%E4%B8%8B%E7%9A%84-git-%E6%96%87%E4%BB%B6%E5%A4%B9%E7%9A%84%E5%AD%98%E5%9C%A8%EF%BC%8C%E9%82%A3%E4%B9%88%E4%B8%BB%E9%A2%98%E6%96%87%E4%BB%B6%E5%A4%B9%E4%BC%9A%E8%A2%AB%E8%AF%86%E5%88%AB%E5%AD%90%E9%A1%B9%E7%9B%AE%E3%80%82"><span class="toc-number">4.4.1.</span> <span class="toc-text">4.1因为 butterfly 主题文件夹下的.git 文件夹的存在，那么主题文件夹会被识别子项目。</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-rejected-main-main-fetch-first"><span class="toc-number">4.4.2.</span> <span class="toc-text">4.2 ! [rejected]        main -&gt; main (fetch first)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-1%EF%BC%9A%E4%BD%BF%E7%94%A8-git-pull%E2%80%8B-%E5%90%88%E5%B9%B6%E8%BF%9C%E7%A8%8B%E6%9B%B4%E6%94%B9"><span class="toc-number">4.4.2.1.</span> <span class="toc-text">方法 1：使用 git pull​ 合并远程更改</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-2%EF%BC%9A%E4%BD%BF%E7%94%A8-git-fetch%E2%80%8B-%E5%92%8C-git-merge%E2%80%8B"><span class="toc-number">4.4.3.</span> <span class="toc-text">方法 2：使用 git fetch​ 和 git merge​</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95-3%EF%BC%9A%E5%BC%BA%E5%88%B6%E6%8E%A8%E9%80%81%EF%BC%88%E4%B8%8D%E6%8E%A8%E8%8D%90%EF%BC%89"><span class="toc-number">4.4.4.</span> <span class="toc-text">方法 3：强制推送（不推荐）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%BE%93%E5%85%A5%E6%8F%90%E4%BA%A4%E4%BF%A1%E6%81%AF"><span class="toc-number">4.4.5.</span> <span class="toc-text">如何输入提交信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B%E5%90%88%E5%B9%B6%E4%BF%A1%E6%81%AF"><span class="toc-number">4.4.6.</span> <span class="toc-text">示例合并信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">4.4.7.</span> <span class="toc-text">注意事项</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background: transparent;"><div id="footer-wrap"><div class="copyright">&copy;2024 - 2025 By Somongbeom</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">我们一同喜欢着现在!</div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><script>(() => {
+  const panguFn = () => {
+    if (typeof pangu === 'object') pangu.autoSpacingPage()
+    else {
+      btf.getScript('https://cdn.jsdelivr.net/npm/pangu/dist/browser/pangu.min.js')
+        .then(() => {
+          pangu.autoSpacingPage()
+        })
+    }
+  }
+
+  const panguInit = () => {
+    if (false){
+      GLOBAL_CONFIG_SITE.isPost && panguFn()
+    } else {
+      panguFn()
+    }
+  }
+
+  btf.addGlobalFn('pjaxComplete', panguInit, 'pangu')
+  document.addEventListener('DOMContentLoaded', panguInit)
+})()</script><div class="js-pjax"><script>(async () => {
+  const showKatex = () => {
+    document.querySelectorAll('#article-container .katex').forEach(el => el.classList.add('katex-show'))
+  }
+
+  if (!window.katex_js_css) {
+    window.katex_js_css = true
+    await btf.getCSS('https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css')
+    if (true) {
+      await btf.getScript('https://cdn.jsdelivr.net/npm/katex/dist/contrib/copy-tex.min.js')
+    }
+  }
+
+  showKatex()
+})()</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/click-heart.min.js" async="async" mobile="false"></script></div></body></html>
